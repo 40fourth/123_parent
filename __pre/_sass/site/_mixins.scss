@@ -1,0 +1,210 @@
+
+@mixin heroAlignment(){
+    &.topleft {
+        justify-content: flex-start;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    &.topcenter {
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    &.topright {
+        justify-content: flex-start;
+        align-items: flex-end;
+        text-align: right;
+    }
+    &.middleleft{
+        justify-content: center;
+        align-items: flex-start;
+        text-align: left;
+    }
+    &.middlecenter {
+        justify-content: center;
+        align-items: center;
+    }
+    &.middleright {
+        justify-content: center;
+        align-items: flex-end;
+        text-align: right;
+    }
+    &.bottomleft {
+        justify-content: flex-end;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    &.bottomcenter {
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    &.bottomright {
+        justify-content: flex-end;
+        align-items: flex-end;
+        text-align: right;
+    }
+}
+
+
+@mixin flexGrid($w, $c, $g) {
+
+    // grid wrapper
+    >ul {
+        
+        margin: 0 0 0 0; // stretch box to fill its container
+        display: flex; // flexbox
+        flex-flow: row wrap; // row wrap
+        width: $w; // set width to value passed
+
+        // grid items
+        >li {
+            $i: colWidth($w, $c, $g); // define width
+            width: $i; // set width
+            margin: 0 getVar($sizing, gutter, vw, normal) getVar($sizing, gutter, vw, normal) 0; // default margins for all items
+
+            &:nth-child(n+1) {
+                margin: 0 getVar($sizing, gutter, vw, normal) getVar($sizing, gutter, vw, normal) 0; // default margins re-set for the 'next' item
+            }
+
+            &:nth-child(#{$c}n) {
+                margin: 0 0 $g 0; // remove margin right from the last column of any column count
+            }
+
+            >a {
+                color: getVar($colors, black, full);
+            }
+
+            @if $c==1 {
+
+                &:nth-child(1n),
+                &:nth-child(n+1) {
+                    margin-bottom: getVar($sizing, gutter, px, normal);
+                }
+            }
+        }
+    }
+}
+@mixin centerer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+@mixin bgimage {
+   background-size: cover;
+   background-position: center center;
+   background-repeat: no-repeat;
+}
+
+@mixin clearfix {
+    &:after {
+        content: "";
+        display: table; 
+        clear: both;
+    }
+}
+
+
+@mixin site__bgimage( $z : false, $g : false){
+    overflow: hidden;
+    position: relative;
+    .image {
+        @include bgimage;
+        transform: scale(1);
+        transition: transform 0.4s ease;
+    }
+    @if ($z == true) {
+        &:hover, &:active, &:focus {
+            .image {
+                transform: scale(1.2);
+            }
+        }
+    }
+    @if($g == true){
+        &:after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            content: '';
+            background-color: transparentize(black, 0.5);
+            z-index: 2;
+            transition: opacity 0.4s ease;
+            opacity: 1;
+        }
+
+        &:hover,
+        &:focus,
+        &:active {
+            &:after {
+                opacity: 0.2;
+            }
+        }
+    }
+}
+
+// updated, production worthy gridLayout mixin
+@mixin gridLayout($w, $c, $g, $s) {
+    > ul {
+        // display: inline-block;
+        width: $w;
+        margin: 0 auto 0 auto;
+        @include clearfix;
+        
+        >li {
+            $d: colWidth($w, $c, $g);
+            width: $d;
+            height: auto;
+            float: left;
+            
+            > a {
+                display: block;
+                width: 100%;
+            }
+
+            .image,
+            .block {
+                display: block;
+                overflow: hidden;
+                background-size: cover;
+                background-position: center center;
+                background-repeat: no-repeat;
+            }
+            
+            .image,
+            .block {
+                @if $s==true {
+                    height: $d;
+                    &.rectangular_block {
+                        height: (colWidth($w, $c, $g) / 1.6);
+                    }
+                    &.less_size_block {
+                        $d : ($d - (2.4 * $g));
+                        height: $d;
+                        width: $d;
+                    }
+                }
+            }
+
+            &:nth-child(n+1) {
+                // this will reset each child before applying to the target
+                margin: 0 $g $g 0;
+            }
+
+            &:nth-child(#{$c}n) {
+                margin: 0 0 $g 0;
+            }
+        }
+    }
+}
+
+
+
+// this will set column widths for grid items
+@function colWidth($w, $c, $g) {
+    @return (($w - (($c - 1) * $g)) / $c);
+}
